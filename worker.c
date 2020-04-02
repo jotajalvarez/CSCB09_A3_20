@@ -36,6 +36,7 @@ struct Pixel create_pixel(struct Pixel *pixel_, int width , int height) {
 void open_dir(char *dir, char result[256]) {
 	DIR *dir_ptr;
 	struct dirent *entry;
+	int counter = 0;
 	if(( dir_ptr = opendir(dir)) == NULL) {
 		fprintf(stderr, "Directory cannot be opened: %s\n", dir);
 		return;
@@ -48,9 +49,11 @@ void open_dir(char *dir, char result[256]) {
 			continue;
 			}
 		// Add the file name to the array
-
-
+		strcpy(result[counter], entry->d_name);
+		counter++;
 		}
+		chdir("..");
+		closedir(dir_ptr);
 
 		// lstat(entry->d_name, &statbuf);
 		// if (S_ISDIR(statbuf.st_mode)) {
@@ -59,6 +62,7 @@ void open_dir(char *dir, char result[256]) {
 		// 	printf()
 		// }
 	}
+	return;
 }
 
 /*
@@ -174,8 +178,29 @@ float compare_images(Image *img1, char *filename) {
 */
 CompRecord process_dir(char *dirname, Image *img, int out_fd){
 
+	// Create the array for all the files
+	char result[256] = {0};
+	//Open the directory and search for all the files
+	open_dir(dirname, &result);
+
+	int index = 0;
+	float result_comp = 0;
+	CompRecord CRec;
+	//Set CRec to the biggest number and root path name;
+	strcpy(CRec.filename, ".");
+	CRec.distance = 999999;
+
+	while (result[index] != '\0') {
+		result_comp = compare_images(img, result[index]);
+		if (CRec.distance > result_comp) {
+			CRec.distance = result_comp;
+			strcpy(CRec.filename, result[index]);
+		}
+		index++;
+	}
 
 
-		CompRecord CRec;
+
+
 		return CRec;
 }
