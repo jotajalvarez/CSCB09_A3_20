@@ -10,26 +10,26 @@
 #include "worker.h"
 
 // Create a helper function that allocates space for the pixel
-struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
-	struct Image *current_pixel = malloc(sizeof(struct Pixel));
-	current_pixel->passing_pixel = malloc(sizeof(int) * 3);
-	return current_pixel;
-}
+// struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
+// 	struct Image *current_pixel = malloc(sizeof(struct Pixel));
+// 	current_pixel->passing_pixel = malloc(sizeof(int) * 3);
+// 	return current_pixel;
+// }
 
 
 // Helper function to create the pixel for the image
-struct Pixel create_pixel(struct Pixel *pixel_, int width , int height) {
-	struct Pixel *new_pixel;
-	// total_dim = (height * (width * 3));
-	// for (int i_width = 1; i_width <= total_dim; i_width) {
-	new_pixel = allocate_pixel(*pixel_);
-	new_pixel.red = pixel_.red;
-	new_pixel.green = pixel.green;
-	new_pixel.blue = pixel.blue;
-	// }
+// struct Pixel create_pixel(struct Pixel *pixel_, int width , int height) {
+// 	struct Pixel *new_pixel;
+// 	// total_dim = (height * (width * 3));
+// 	// for (int i_width = 1; i_width <= total_dim; i_width) {
+// 	new_pixel = allocate_pixel(*pixel_);
+// 	new_pixel.red = pixel_.red;
+// 	new_pixel.green = pixel.green;
+// 	new_pixel.blue = pixel.blue;
+// 	// }
 
-	return new_pixel;
-}
+// 	return new_pixel;
+// }
 
 // Helper function to open directory and search for files
 
@@ -73,50 +73,46 @@ Image* read_image(char *filename) {
 	// Create a file pointer to read the file
 	FILE *f_ptr;
 	// Define a set of variables for the header information
-	char format_buf[256];
+	char *format_buf = malloc(sizeof(char) * 256);
 	int width, height, max_value;
 
-	int total_dim;
+	// int total_dim;
 
 	// Open the file and set it to the pointer
-	f_ptr = fopen(*filename, "r");
+	f_ptr = fopen(filename, "r");
 	if ( f_ptr == NULL ) {
 		perror("Error: ");
-		return -1;
+		return NULL;
 	}
 
 	// Scanf for the header information of the file
-	scanf("%s %d %d %d", &format_buf, &width, &height, &max_value);
-	if ( format_buf != "P3" ) {
+	int assigned_items = fscanf(f_ptr, "%s %d %d %d", format_buf, &width, &height, &max_value);
+	if ( assigned_items <= 0) {
 		return NULL;
 	}
-
-	/*	 fgets(&format_buf, 256, f_ptr);
-	* 	if (format_buf != "P3") {
-		return NULL;
-	}
-
-	fgets(&width, 32, f_ptr);
-	if
-	fgets(&height, 32, f_ptr);
-	fgets(&max_values, 32, f_ptr);
-	*/
-
 
 	// Get the info from the file
 
-
+	int num_of_pixels = (width * height * 3);
+	Image *img = (Image*)malloc(sizeof(Image));
+	img->height = height;
+	img->width = width;
+	img->p = (Pixel*)malloc(sizeof(Pixel*) * (num_of_pixels));
+	
 	// loop through the pixels in the image
-	total_dim = (height * (width * 3));
-	for ( int img_width = 1; img_width <= total_dim; img_width += 3) {
-		//Pass the info from the file to the helper function
-		create_pixel();
+	int red, blue, green = 0;
+	int pixel_index = 0;
+	while(fscanf(f_ptr, "%d %d %d", &red, &green, &blue) != EOF) {
+		Pixel p;
+		p.blue = blue;
+		p.green = green;
+		p.red = red;
+		img->p[pixel_index] = p;
+		pixel_index++;
 	}
 
-
-	Image *img;
 	return img;
-	}
+}
 
 /*
  * Print an image based on the provided Image struct
@@ -147,24 +143,22 @@ float eucl_distance (Pixel p1, Pixel p2) {
 
 float compare_images(Image *img1, char *filename) {
 	// Create an Image struct of the filename image.
-	struct Image *filename_image = read_image(filename);
+	Image *cmp_image = read_image(filename);
 
-	// Create a total_dim variable
-	int total_dim = (img1.height * (img1.width *3));
 	// Create a counter to average the pixel count
 	int eucl_sum = 0;
-	int eucl_count = 0;
-	int eucl_return = 0;
 
-	if ((img1.width != filename_image.width) || (img1.height != filename_image.height)) {
+	if ((img1->width != cmp_image->width) || (img1->height != cmp_image->height)) {
 		return FLT_MAX;
 	}
-	for (int i_width = 1; i_width < total_dim; i_width += 3){
-		eucl_sum += eucl_distance(img1->p[i_width], filename_image->p[i_width]);
-		eucl_count++;
+	int total_dim = (img1->height * (img1->width));
+	for (int i_width = 0; i_width < total_dim; i_width += 1) {
+		Pixel first = img1->p[i_width];
+		Pixel second = cmp_image->p[i_width];
+		eucl_sum += eucl_distance(first, second);
 	}
 
-	eucl_return = (eucl_sum/eucl_count);
+	int eucl_return = (eucl_sum/total_dim);
 
 	return eucl_return;
 }
@@ -198,9 +192,5 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
 		}
 		index++;
 	}
-
-
-
-
-		return CRec;
+	return CRec;
 }
