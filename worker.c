@@ -10,24 +10,55 @@
 #include "worker.h"
 
 // Create a helper function that allocates space for the pixel
-struct Image *allocate_pixel(struct Pixel *passing_pixel) {
+struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
 	struct Image *current_pixel = malloc(sizeof(struct Pixel));
 	current_pixel->passing_pixel = malloc(sizeof(int) * 3);
 	return current_pixel;
 }
 
 
-// Create the pixel for the image
-struct Image create_image(struct Pixel *pixel_, int width , int height) {
+// Helper function to create the pixel for the image
+struct Pixel create_pixel(struct Pixel *pixel_, int width , int height) {
 	struct Pixel *new_pixel;
-	total_dim = (height * (width * 3));
-	for (int i_width = 1; i_width <= total_dim; i_width) {
-		new_pixel = allocate_pixel(*pixel_);
-		new_pixel.red = pixel_.red;
-		new_pixel.green = pixel.green;
-		new_pixel.blue = pixel.blue;
-	}
+	// total_dim = (height * (width * 3));
+	// for (int i_width = 1; i_width <= total_dim; i_width) {
+	new_pixel = allocate_pixel(*pixel_);
+	new_pixel.red = pixel_.red;
+	new_pixel.green = pixel.green;
+	new_pixel.blue = pixel.blue;
+	// }
+
 	return new_pixel;
+}
+
+// Helper function to open directory and search for files
+
+void open_dir(char *dir, char result[256]) {
+	DIR *dir_ptr;
+	struct dirent *entry;
+	if(( dir_ptr = opendir(dir)) == NULL) {
+		fprintf(stderr, "Directory cannot be opened: %s\n", dir);
+		return;
+	}
+
+	chdir(dir);
+	while((entry = readdir(dir_ptr)) != NULL) {
+		if (entry->d_type == 4) {
+			if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
+			continue;
+			}
+		// Add the file name to the array
+
+
+		}
+
+		// lstat(entry->d_name, &statbuf);
+		// if (S_ISDIR(statbuf.st_mode)) {
+		// 	// Ignore dir . and ..
+
+		// 	printf()
+		// }
+	}
 }
 
 /*
@@ -56,12 +87,27 @@ Image* read_image(char *filename) {
 		return NULL;
 	}
 
+	/*	 fgets(&format_buf, 256, f_ptr);
+	* 	if (format_buf != "P3") {
+		return NULL;
+	}
 
-	// Allocate space for the array of pixel.
+	fgets(&width, 32, f_ptr);
+	if
+	fgets(&height, 32, f_ptr);
+	fgets(&max_values, 32, f_ptr);
+	*/
 
-	// Allocate the space for the info of each pixel
+
+	// Get the info from the file
 
 
+	// loop through the pixels in the image
+	total_dim = (height * (width * 3));
+	for ( int img_width = 1; img_width <= total_dim; img_width += 3) {
+		//Pass the info from the file to the helper function
+		create_pixel();
+	}
 
 
 	Image *img;
@@ -114,7 +160,7 @@ float compare_images(Image *img1, char *filename) {
 		eucl_count++;
 	}
 
-	eucl_return = eucl_sum/eucl_count;
+	eucl_return = (eucl_sum/eucl_count);
 
 	return eucl_return;
 }
@@ -128,7 +174,8 @@ float compare_images(Image *img1, char *filename) {
 */
 CompRecord process_dir(char *dirname, Image *img, int out_fd){
 
-		CompRecord CRec;
 
+
+		CompRecord CRec;
 		return CRec;
 }
