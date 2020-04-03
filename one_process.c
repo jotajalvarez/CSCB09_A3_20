@@ -92,6 +92,9 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+
+// UNUSED CODE
+
 // int main(int argc, char **argv) {
 // 	char *filename = "./tinypix.ppm";
 // 	char *dir = "../SamplePPM";
