@@ -9,6 +9,8 @@
 #include <float.h>
 #include "worker.h"
 
+#define BUFFER_SIZE 256
+
 // Create a helper function that allocates space for the pixel
 // struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
 // 	struct Image *current_pixel = malloc(sizeof(struct Pixel));
@@ -33,27 +35,67 @@
 
 // Helper function to open directory and search for files
 
-void open_dir(char *dir, char result[256]) {
+void open_dir(char *dir, char *result[BUFFER_SIZE]) {
 	DIR *dir_ptr;
 	struct dirent *entry;
-	int counter = 0;
-	if(( dir_ptr = opendir(dir)) == NULL) {
+
+	// int array_ind;
+	int counter_ind = 0;
+	dir_ptr = opendir(dir);
+
+	if (dir_ptr == NULL){
 		fprintf(stderr, "Directory cannot be opened: %s\n", dir);
 		return;
 	}
 
-	chdir(dir);
-	while((entry = readdir(dir_ptr)) != NULL) {
-		if (entry->d_type == 4) {
-			if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
-			continue;
-			}
-		// Add the file name to the array
-		strcpy(result[counter], entry->d_name);
-		counter++;
+	if (dir_ptr) {
+		while ((entry = readdir(dir_ptr)) != NULL){
+			result[counter_ind] = malloc(strlen(entry->d_name)+1);
+			strcpy(result[counter_ind], entry->d_name);
+			printf("%s\n", result[counter_ind]);
+			printf("%p\n", &result[counter_ind]);
+			counter_ind++;
 		}
-		chdir("..");
+		printf("--------------------\n");
 		closedir(dir_ptr);
+	}
+
+	// DIR *dir_ptr;
+	// struct dirent *entry;
+	// // struct stat lstat;
+	// //int counter = 0;
+	// if(( dir_ptr = opendir(dir)) == NULL) {
+	// 	fprintf(stderr, "Directory cannot be opened: %s\n", dir);
+	// 	return;
+	// }
+	// char name[256];
+	// // char buf[32];
+
+	// // chdir(dir);
+
+	// while((entry = readdir(dir_ptr)) != NULL) {
+	// 	if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
+	// 			continue;
+	// 	}
+	// 	else {
+	// 		if (entry->d_type == 4) {
+	// 			strcpy(name, dir);
+	// 			strcat(name, "/");
+	// 			strcat(name, entry->d_name);
+	// 			open_dir(name, result, size);
+	// 		}
+	// 		else {
+	// 			strcpy(name, dir);
+	// 			strcat(name, "/");
+	// 			strcat(name, entry->d_name);
+	// 			result[*size] = (char)malloc(strlen(name)+1);
+	// 			strcpy(&name[*size], name);
+	// 			*size = *size + 1;
+
+	// 		}
+	// 	}
+		//chdir("..");
+		//closedir(dir_ptr);
 
 		// lstat(entry->d_name, &statbuf);
 		// if (S_ISDIR(statbuf.st_mode)) {
@@ -61,8 +103,7 @@ void open_dir(char *dir, char result[256]) {
 
 		// 	printf()
 		// }
-	}
-	return;
+	// }
 }
 
 /*
@@ -98,7 +139,7 @@ Image* read_image(char *filename) {
 	img->height = height;
 	img->width = width;
 	img->p = (Pixel*)malloc(sizeof(Pixel*) * (num_of_pixels));
-	
+
 	// loop through the pixels in the image
 	int red, blue, green = 0;
 	int pixel_index = 0;
@@ -173,9 +214,15 @@ float compare_images(Image *img1, char *filename) {
 CompRecord process_dir(char *dirname, Image *img, int out_fd){
 
 	// Create the array for all the files
-	char result[256] = {0};
+	char *result[BUFFER_SIZE];
 	//Open the directory and search for all the files
-	open_dir(dirname, &result);
+	open_dir(dirname, &result[BUFFER_SIZE]); // here is the problem
+
+	printf("-----------------\n");
+	for (int i = 0; i < 32; i++){
+		printf("--%p\n", &result[i]);
+		printf("%s\n", result[i]);
+	}
 
 	int index = 0;
 	float result_comp = 0;

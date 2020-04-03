@@ -69,8 +69,11 @@
 // 		// Only call process_dir if it is a directory
 // 		// Otherwise ignore it.
 // 		if(S_ISDIR(sbuf.st_mode)) {
-//           process_dir(path, image_file, STDOUT_FILENO);
-// 		  // printf("Processing all images in directory: %s \n", path);
+// 			// Create the image for from the image_file path
+// 			Image *passing_image = read_image(image_file);
+
+//         	process_dir(path, passing_image, STDOUT_FILENO);
+// 			// printf("Processing all images in directory: %s \n", path);
 // 		}
 
 // 	}
@@ -82,8 +85,12 @@
 
 int main(int argc, char **argv) {
 	char *filename = "./tinypix.ppm";
+	char *dir = ".";
 	Image *img = read_image(filename);
-	print_image(img);
+	//print_image(img);
 	float result = compare_images(img, filename);
 	printf("\n%f\n", result);
+
+	CompRecord final_res = process_dir(dir, img, 1);
+	printf("final res -> %s at %f-----\n", final_res.filename, final_res.distance);
 }
