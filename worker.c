@@ -173,7 +173,8 @@ void print_image(Image *img){
  * Compute the Euclidian distance between two pixels
  */
 float eucl_distance (Pixel p1, Pixel p2) {
-		return sqrt( pow(p1.red - p2.red,2 ) + pow( p1.blue - p2.blue, 2) + pow(p1.green - p2.green, 2));
+	printf("%d	%d	%d	%d	%d	%d\n", p1.red, p1.green, p1.blue, p2.red, p2.green, p2.blue);
+		return sqrt( pow(p1.red - p2.red, 2) + pow( p1.blue - p2.blue, 2) + pow(p1.green - p2.green, 2));
 }
 
 /*
@@ -183,11 +184,14 @@ float eucl_distance (Pixel p1, Pixel p2) {
  */
 
 float compare_images(Image *img1, char *filename) {
+	printf("Inside compare\n");
+	printf("%s\n", filename);
 	// Create an Image struct of the filename image.
 	Image *cmp_image = read_image(filename);
 
+	printf("%d\n", cmp_image->height);
 	// Create a counter to average the pixel count
-	int eucl_sum = 0;
+	float eucl_sum = 0;
 
 	if ((img1->width != cmp_image->width) || (img1->height != cmp_image->height)) {
 		return FLT_MAX;
@@ -196,7 +200,10 @@ float compare_images(Image *img1, char *filename) {
 	for (int i_width = 0; i_width < total_dim; i_width += 1) {
 		Pixel first = img1->p[i_width];
 		Pixel second = cmp_image->p[i_width];
+		// float dis = eucl_distance(first, second);
+		// printf("%f\t", dis);
 		eucl_sum += eucl_distance(first, second);
+		// printf("%f\n", eucl_sum);
 	}
 
 	int eucl_return = (eucl_sum/total_dim);
@@ -216,13 +223,54 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
 	// Create the array for all the files
 	char *result[BUFFER_SIZE];
 	//Open the directory and search for all the files
-	open_dir(dirname, &result[BUFFER_SIZE]); // here is the problem
+	// open_dir(dirname, &result[BUFFER_SIZE]); // here is the problem
 
-	printf("-----------------\n");
-	for (int i = 0; i < 32; i++){
-		printf("--%p\n", &result[i]);
-		printf("%s\n", result[i]);
+
+	DIR *dir_ptr;
+	// FILE *file_ptr;
+	struct dirent *entry;
+
+	// int array_ind;
+	int counter_ind = 0;
+	dir_ptr = opendir(dirname);
+
+	// printf("opendir\n");
+	// if ((dir_ptr == NULL)){
+	// 	fprintf(stderr, "Directory cannot be opened: %s\n", dirname);
+
+	// }
+	if (dir_ptr == NULL){
+		perror("Unable to open file/directory");
+		exit(1);
 	}
+
+
+	if (1) {
+		// printf("Inside if\n ");
+		entry = readdir(dir_ptr);
+		// printf("-----\n");
+		while ((entry = readdir(dir_ptr)) != NULL){
+			if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
+			continue;
+			}
+			// printf("Inside while loop\n");
+			result[counter_ind] = malloc(strlen(entry->d_name)+1);
+			strcpy(result[counter_ind], entry->d_name);
+			// printf("%s\n", result[counter_ind]);
+			// printf("%p\n", &result[counter_ind]);
+			counter_ind++;
+		}
+		// printf("--------------------\n");
+		closedir(dir_ptr);
+	}
+
+
+
+	// printf("-----------------\n");
+	// for (int i = 0; i < 32; i++){
+	// 	printf("--%p\n", &result[i]);
+	// 	printf("%s\n", result[i]);
+	// }
 
 	int index = 0;
 	float result_comp = 0;
@@ -232,12 +280,16 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
 	CRec.distance = 999999;
 
 	while (result[index] != '\0') {
+		printf("%d\n", img->p->green);
+		printf("%s\n", result[index]);
 		result_comp = compare_images(img, result[index]);
+		printf("After compare\n");
 		if (CRec.distance > result_comp) {
 			CRec.distance = result_comp;
 			strcpy(CRec.filename, result[index]);
 		}
 		index++;
 	}
+	printf("Before return");
 	return CRec;
 }
