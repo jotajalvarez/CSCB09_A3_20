@@ -10,7 +10,7 @@
 #include "worker.h"
 
 #define BUFFER_SIZE 256
-
+#define INT_MAX 1.84e19
 // Create a helper function that allocates space for the pixel
 // struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
 // 	struct Image *current_pixel = malloc(sizeof(struct Pixel));
@@ -184,12 +184,9 @@ float eucl_distance (Pixel p1, Pixel p2) {
  */
 
 float compare_images(Image *img1, char *filename) {
-	printf("Inside compare\n");
-	printf("%s\n", filename);
 	// Create an Image struct of the filename image.
 	Image *cmp_image = read_image(filename);
 
-	printf("%d\n", cmp_image->height);
 	// Create a counter to average the pixel count
 	float eucl_sum = 0;
 
@@ -200,10 +197,7 @@ float compare_images(Image *img1, char *filename) {
 	for (int i_width = 0; i_width < total_dim; i_width += 1) {
 		Pixel first = img1->p[i_width];
 		Pixel second = cmp_image->p[i_width];
-		// float dis = eucl_distance(first, second);
-		// printf("%f\t", dis);
 		eucl_sum += eucl_distance(first, second);
-		// printf("%f\n", eucl_sum);
 	}
 
 	int eucl_return = (eucl_sum/total_dim);
@@ -221,75 +215,43 @@ float compare_images(Image *img1, char *filename) {
 CompRecord process_dir(char *dirname, Image *img, int out_fd){
 
 	// Create the array for all the files
-	char *result[BUFFER_SIZE];
-	//Open the directory and search for all the files
+	char result[BUFFER_SIZE][BUFFER_SIZE];
+	// Open the directory and search for all the files
 	// open_dir(dirname, &result[BUFFER_SIZE]); // here is the problem
 
+	DIR *dir_ptr = opendir(dirname);
 
-	DIR *dir_ptr;
-	// FILE *file_ptr;
-	struct dirent *entry;
-
-	// int array_ind;
-	int counter_ind = 0;
-	dir_ptr = opendir(dirname);
-
-	// printf("opendir\n");
-	// if ((dir_ptr == NULL)){
-	// 	fprintf(stderr, "Directory cannot be opened: %s\n", dirname);
-
-	// }
 	if (dir_ptr == NULL){
 		perror("Unable to open file/directory");
 		exit(1);
 	}
 
 
-	if (1) {
-		// printf("Inside if\n ");
-		entry = readdir(dir_ptr);
-		// printf("-----\n");
-		while ((entry = readdir(dir_ptr)) != NULL){
-			if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
+	struct dirent *entry = readdir(dir_ptr);
+	int counter_ind = 0;
+	while ((entry = readdir(dir_ptr)) != NULL){
+		if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
 			continue;
-			}
-			// printf("Inside while loop\n");
-			result[counter_ind] = malloc(strlen(entry->d_name)+1);
-			strcpy(result[counter_ind], entry->d_name);
-			// printf("%s\n", result[counter_ind]);
-			// printf("%p\n", &result[counter_ind]);
-			counter_ind++;
 		}
-		// printf("--------------------\n");
-		closedir(dir_ptr);
+		strcpy(result[counter_ind], entry->d_name);
+		counter_ind++;
 	}
+	closedir(dir_ptr);
 
-
-
-	// printf("-----------------\n");
-	// for (int i = 0; i < 32; i++){
-	// 	printf("--%p\n", &result[i]);
-	// 	printf("%s\n", result[i]);
-	// }
-
-	int index = 0;
 	float result_comp = 0;
 	CompRecord CRec;
 	//Set CRec to the biggest number and root path name;
 	strcpy(CRec.filename, ".");
-	CRec.distance = 999999;
+	CRec.distance = INT_MAX;
 
-	while (result[index] != '\0') {
-		printf("%d\n", img->p->green);
-		printf("%s\n", result[index]);
-		result_comp = compare_images(img, result[index]);
-		printf("After compare\n");
+	while (counter_ind != -1) {
+		result_comp = compare_images(img, result[counter_ind]);
 		if (CRec.distance > result_comp) {
 			CRec.distance = result_comp;
-			strcpy(CRec.filename, result[index]);
+			strcpy(CRec.filename, result[counter_ind]);
 		}
-		index++;
+		counter_ind--;
 	}
-	printf("Before return");
+	write(out_fd, &CRec, sizeof(CompRecord));
 	return CRec;
 }

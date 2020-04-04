@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
 
 
-        printf("The most similar image is %s with a distance of %f\n", CRec.filename, CRec.distance);
+    printf("The most similar image is %s with a distance of %f\n", CRec.filename, CRec.distance);
 
 	return 0;
 }
