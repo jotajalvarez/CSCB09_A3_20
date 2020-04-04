@@ -8,6 +8,40 @@
 #include <float.h>
 #include "worker.h"
 
+
+
+
+
+int dir_count(char *dir) {
+    DIR *dir_ptr;
+    struct dirent *entry;
+
+    int counter = 0;
+    dir_ptr = opendir(dir);
+
+    if (dir_ptr = NULL) {
+        fprintf(stderr, "Opening directory failed: %s\n", dir);
+        return -1;
+    }
+
+    if (dir_ptr) {
+        while((entry = readdir(dir_ptr)) != NULL) {
+            if(entry->d_type == 4){
+                char *new_dir;
+                strcpy(new_dir, dir);
+                strcat(new_dir, "/");
+                strcat(new_dir, entry->d_name);
+                counter++;
+                chdir(new_dir);
+            }
+        }
+        close(dir_ptr);
+    }
+
+    return counter;
+}
+
+
 int main(int argc, char **argv) {
 
 	char ch;
@@ -94,34 +128,3 @@ int main(int argc, char **argv) {
 	}
 
 
-
-
-
-int dir_count(char *dir) {
-    DIR *dir_ptr;
-    struct dirent *entry;
-
-    int counter = 0;
-    dir_ptr = opendir(dir);
-
-    if (dir_ptr = NULL) {
-        fprintf(stderr, "Opening directory failed: %s\n", dir);
-        return -1;
-    }
-
-    if (dir_ptr) {
-        while((entry = readdir(dir_ptr)) != NULL) {
-            if(entry->d_type == 4){
-                char *new_dir;
-                strcpy(new_dir, dir);
-                strcat(new_dir, "/");
-                strcat(new_dir, entry->d_name);
-                counter++;
-                chdir(new_dir);
-            }
-        }
-        close(dir_ptr);
-    }
-
-    return counter;
-}
