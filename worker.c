@@ -11,27 +11,7 @@
 
 #define BUFFER_SIZE 256
 #define INT_MAX 1.84e19
-// Create a helper function that allocates space for the pixel
-// struct Pixel *allocate_pixel(struct Pixel *passing_pixel) {
-// 	struct Image *current_pixel = malloc(sizeof(struct Pixel));
-// 	current_pixel->passing_pixel = malloc(sizeof(int) * 3);
-// 	return current_pixel;
-// }
 
-
-// Helper function to create the pixel for the image
-// struct Pixel create_pixel(struct Pixel *pixel_, int width , int height) {
-// 	struct Pixel *new_pixel;
-// 	// total_dim = (height * (width * 3));
-// 	// for (int i_width = 1; i_width <= total_dim; i_width) {
-// 	new_pixel = allocate_pixel(*pixel_);
-// 	new_pixel.red = pixel_.red;
-// 	new_pixel.green = pixel.green;
-// 	new_pixel.blue = pixel.blue;
-// 	// }
-
-// 	return new_pixel;
-// }
 
 // Helper function to open directory and search for files
 
@@ -56,54 +36,9 @@ void open_dir(char *dir, char *result[BUFFER_SIZE]) {
 			printf("%p\n", &result[counter_ind]);
 			counter_ind++;
 		}
-		printf("--------------------\n");
 		closedir(dir_ptr);
 	}
 
-	// DIR *dir_ptr;
-	// struct dirent *entry;
-	// // struct stat lstat;
-	// //int counter = 0;
-	// if(( dir_ptr = opendir(dir)) == NULL) {
-	// 	fprintf(stderr, "Directory cannot be opened: %s\n", dir);
-	// 	return;
-	// }
-	// char name[256];
-	// // char buf[32];
-
-	// // chdir(dir);
-
-	// while((entry = readdir(dir_ptr)) != NULL) {
-	// 	if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0) {
-	// 			continue;
-	// 	}
-	// 	else {
-	// 		if (entry->d_type == 4) {
-	// 			strcpy(name, dir);
-	// 			strcat(name, "/");
-	// 			strcat(name, entry->d_name);
-	// 			open_dir(name, result, size);
-	// 		}
-	// 		else {
-	// 			strcpy(name, dir);
-	// 			strcat(name, "/");
-	// 			strcat(name, entry->d_name);
-	// 			result[*size] = (char)malloc(strlen(name)+1);
-	// 			strcpy(&name[*size], name);
-	// 			*size = *size + 1;
-
-	// 		}
-	// 	}
-		//chdir("..");
-		//closedir(dir_ptr);
-
-		// lstat(entry->d_name, &statbuf);
-		// if (S_ISDIR(statbuf.st_mode)) {
-		// 	// Ignore dir . and ..
-
-		// 	printf()
-		// }
-	// }
 }
 
 /*
@@ -173,7 +108,6 @@ void print_image(Image *img){
  * Compute the Euclidian distance between two pixels
  */
 float eucl_distance (Pixel p1, Pixel p2) {
-	printf("%d	%d	%d	%d	%d	%d\n", p1.red, p1.green, p1.blue, p2.red, p2.green, p2.blue);
 		return sqrt( pow(p1.red - p2.red, 2) + pow( p1.blue - p2.blue, 2) + pow(p1.green - p2.green, 2));
 }
 
